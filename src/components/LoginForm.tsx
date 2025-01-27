@@ -12,7 +12,7 @@ const LoginForm: React.FC = () => {
     e.preventDefault();
     try {
       await loginUser(username, password);
-      navigate('/dashboard');
+      navigate('/dashboard'); 
     } catch (err: any) {
       setError(err.message);
     }
