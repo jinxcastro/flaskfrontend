@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { registerUser } from '../api/auth';
+import { registerUser } from '../api/auth/auth';
 import { useNavigate } from 'react-router-dom';
+import '../styles/register.css';
 
 const RegisterForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -19,23 +20,27 @@ const RegisterForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Register</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Register</button>
-    </form>
+    <div className="login-container">
+      <form onSubmit={handleSubmit} className="login-form">
+        <h2 className="login-title">Register</h2>
+        {error && <p className="error-message">{error}</p>}
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="input-field"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="input-field"
+        />
+        <button type="submit" className="submit-button">Register</button>
+      </form>
+    </div>
   );
 };
 

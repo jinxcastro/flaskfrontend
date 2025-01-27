@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { loginUser } from '../api/auth';
+import { loginUser } from '../api/auth/auth';
 import { useNavigate } from 'react-router-dom';
+import '../styles/login.css';
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -12,30 +13,34 @@ const LoginForm: React.FC = () => {
     e.preventDefault();
     try {
       await loginUser(username, password);
-      navigate('/dashboard'); 
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Login</button>
-    </form>
+    <div className="login-container">
+      <form onSubmit={handleSubmit} className="login-form">
+        <h2 className="login-title">Login</h2>
+        {error && <p className="error-message">{error}</p>}
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="input-field"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="input-field"
+        />
+        <button type="submit" className="submit-button">Login</button>
+      </form>
+    </div>
   );
 };
 
