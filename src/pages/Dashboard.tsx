@@ -1,100 +1,82 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams, Link } from 'react-router-dom';
+import DataGrid from 'react-data-grid';
 import '../styles/dashboard.css';
+import "react-data-grid/lib/styles.css";
 
-interface User {
-  id: string;
-  username: string;
-}
+const API_URL = 'http://127.0.0.1:5000/api';
 
-interface DashboardProps {
-  username: string;
-  users: User[];
-}
+const Dashboard: React.FC = () => {
+    const { username } = useParams<{ username: string }>();
+    const [users, setUsers] = useState<{ id: number; username: string }[]>([]);
 
-const Dashboard: React.FC<DashboardProps> = ({ username, users }) => {
-  const [isSideNavOpen, setIsSideNavOpen] = useState(false);
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const response = await axios.get(`${API_URL}/dashboard/${username}`);
+            setUsers(response.data.users);
+        };
+        fetchUsers();
+    }, [username]);
 
-  const toggleSideNav = () => {
-    setIsSideNavOpen(!isSideNavOpen);
-  };
+    const handleDelete = async (userId: number) => {
+        try {
+            const response = await axios.delete(`${API_URL}/delete_user/${userId}`);
+            if (response.status === 200) {
+                setUsers(users.filter(user => user.id !== userId));
+            }
+        } catch (err) {
+            console.error('Error deleting user', err);
+        }
+    };
 
-  const handleDeleteUser = (userId: string, event: React.MouseEvent) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) {
-      event.preventDefault();
-    }
-  };
+    const columns = [
+        { key: 'id', name: 'ID' },
+        { key: 'username', name: 'Username' },
+        {
+            key: 'actions',
+            name: 'Actions',
+            renderCell: ({ row }) => (
+                <div>
+                    <button onClick={() => handleDelete(row.id)}>Delete</button>
+                </div>
+            ),
+        },
+    ];
 
-  const handleLogout = () => {
-    alert('Logged out');
-    window.location.href = '/';
-  };
+    return (
+        <div className="dashboard-container">
+            <nav className="navbar">
+                <div className="navbar-brand">Welcome</div>
+            </nav>
 
-  return (
-    <div className="dashboard">
-      <nav>
-        <button className="toggle-btn" onClick={toggleSideNav}>
-          ☰
-        </button>
-        <div className="dropdown">
-          <button className="dropdown-toggle">
-            <p>Welcome, {username} ▼</p>
-            <button className="logout-btn" onClick={handleLogout}>
-              Logout
-            </button>
-          </button>
+            <div className="content-wrapper">
+                <aside className="side-panel">
+                    <h3>Menu</h3>
+                    <ul>
+                        <li><Link to={`/upload/${username}`} className="side-link">Upload Files</Link></li>
+                        <li><Link to="/" className="side-link">Logout</Link></li>
+                    </ul>
+                </aside>
+
+                <main className="main-content">
+                    <h1>Dashboard</h1>
+
+                    <Link to="/dashboard/new">
+                        <button>Create New User</button>
+                    </Link>
+
+                    <DataGrid
+                        columns={columns}
+                        rows={users}
+                        rowKeyGetter={(row) => row.id}
+                        headerRowHeight={40}
+                        style={{ height: 500, width: '100%' }}
+                    />
+                </main>
+            </div>
         </div>
-      </nav>
-
-      <nav id="side-nav" className={isSideNavOpen ? 'open' : ''}>
-        <ul>
-          <li>
-            <a href={`/dashboard/${username}`}>Dashboard</a>
-          </li>
-          <li>
-            <a href={`/file_upload/${username}`}>Upload File</a>
-          </li>
-        </ul>
-      </nav>
-
-      <div className="content">
-        <h2>Users</h2>
-        <div className="actions">
-          <a href={`/new_user/${username}`} className="btn btn-primary">
-            New User
-          </a>
-        </div>
-
-        <div className="user-table">
-          <table className="grid-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.username}</td>
-                  <td>
-                    <a href={`/edit_user/${user.id}`}>Edit</a> |{' '}
-                    <a
-                      href={`/delete_user/${user.id}`}
-                      onClick={(event) => handleDeleteUser(user.id, event)}
-                    >
-                      Delete
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Dashboard;

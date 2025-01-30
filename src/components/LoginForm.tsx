@@ -1,47 +1,50 @@
 import React, { useState } from 'react';
-import { loginUser } from '../api/auth/auth';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/login.css';
 
-const LoginForm: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+const Login: React.FC = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await loginUser(username, password);
-      navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/login', { username, password });
+            console.log(response.data);
+            navigate(`/dashboard/${username}`);
+        } catch (err) {
+            setError('Invalid username or password');
+        }
+    };
 
-  return (
-    <div className="login-container">
-      <form onSubmit={handleSubmit} className="login-form">
-        <h2 className="login-title">Login</h2>
-        {error && <p className="error-message">{error}</p>}
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="input-field"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="input-field"
-        />
-        <button type="submit" className="submit-button">Login</button>
-      </form>
-    </div>
-  );
+    return (
+        <div className="login-container">
+            <h1>Login</h1>
+            {error && <p className="error-message">{error}</p>}
+            <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="login-input"
+            />
+            <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="login-input"
+            />
+            <button onClick={handleLogin} className="login-button">
+                Login
+            </button>
+            <p className="register-link">
+                Don't have an account? <span onClick={() => navigate('/register')}>Register</span>
+            </p>
+        </div>
+    );
 };
 
-export default LoginForm;
+export default Login;
