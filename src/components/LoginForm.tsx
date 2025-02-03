@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/login.css';
+import { loginUser } from '../api/auth/auth';
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -11,7 +12,7 @@ const Login: React.FC = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/login', { username, password });
+            const response = await loginUser (username, password);
             console.log(response.data);
             navigate(`/dashboard/${username}`);
         } catch (err) {
