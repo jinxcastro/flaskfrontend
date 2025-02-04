@@ -39,6 +39,7 @@ const Dashboard: React.FC = () => {
             renderCell: ({ row }) => (
                 <div>
                     <button onClick={() => handleDelete(row.id)}>Delete</button>
+                    <Link to={`/chat/${row.id}/${row.id}`}>Chat</Link>
                 </div>
             ),
         },

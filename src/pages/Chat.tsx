@@ -5,26 +5,37 @@ import '../styles/chat.css';
 
 const socket = io('http://127.0.0.1:5000');
 
+interface Message {
+  sender: string;
+  message: string;
+}
+
 const Chat: React.FC = () => {
-    const { username } = useParams<{ username: string }>();
+    const { userId, recipientId } = useParams<{ userId: string, recipientId: string }>();
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
-        socket.emit('join', { username });
+        socket.emit('join', { username: userId });
 
-        socket.on('receive_message', (data) => {
-            setMessages((prevMessages) => [...prevMessages, `${data.sender}: ${data.message}`]);
-        });
+        const handleReceiveMessage = (data: Message) => {
+            setMessages((prevMessages) => [...prevMessages, data]);
+        };
+
+        socket.on('receive_message', handleReceiveMessage);
 
         return () => {
-            socket.emit('leave', { username });
+            socket.off('receive_message', handleReceiveMessage);
+            socket.emit('leave', { username: userId });
         };
-    }, [username]);
+    }, [userId]);
 
     const sendMessage = () => {
-        socket.emit('message', { sender: username, recipient: 'other_user', message });
-        setMessages([...messages, `Me: ${message}`]);
+        if (message.trim() === '') return;
+
+        const newMessage = { sender: userId, message };
+        socket.emit('message', { sender: userId, recipient: recipientId, message });
+        setMessages([...messages, newMessage]);
         setMessage('');
     };
 
@@ -38,8 +49,8 @@ const Chat: React.FC = () => {
             <aside className="side-panel">
               <h3>Menu</h3>
                 <ul>
-                  <li><Link to={`/dashboard/${username}`} className="side-link">Dashboard</Link></li>
-                  <li><Link to={`/upload/${username}`} className="side-link">Upload Files</Link></li>
+                  <li><Link to={`/dashboard/${userId}`} className="side-link">Dashboard</Link></li>
+                  <li><Link to={`/upload/${userId}`} className="side-link">Upload Files</Link></li>
                   <li><Link to="/" className="side-link">Logout</Link></li>
                 </ul>
             </aside>
@@ -47,22 +58,26 @@ const Chat: React.FC = () => {
             <main className="main-content">
               <h1>Chat</h1>
               
-              <div>
+              <div className="chat-box">
                 {messages.map((msg, index) => (
-                    <div key={index}>{msg}</div>
+                    <div key={index} className={msg.sender === userId ? 'my-message' : 'other-message'}>
+                        <strong>{msg.sender === userId ? 'Me' : msg.sender}:</strong> {msg.message}
+                    </div>
                 ))}
               </div>
-              <input
+
+              <div className="chat-input">
+                <input
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type a message..."
-              />
-              <button onClick={sendMessage}>Send</button>
+                />
+                <button onClick={sendMessage}>Send</button>
+              </div>
             </main>
-          </div>
-           
         </div>
+      </div>
     );
 };
 
