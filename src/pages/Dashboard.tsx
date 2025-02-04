@@ -4,7 +4,6 @@ import { useParams, Link } from 'react-router-dom';
 import DataGrid from 'react-data-grid';
 import '../styles/dashboard.css';
 import "react-data-grid/lib/styles.css";
-// import { faker } from '@faker-js/faker';
 
 const API_URL = 'http://127.0.0.1:5000/api';
 
@@ -19,26 +18,6 @@ const Dashboard: React.FC = () => {
         };
         fetchUsers();
     }, [username]);
-
-  //   useEffect(() => {
-  //     const fetchUsers = async () => {
-  //         const fakeUsers = Array.from({ length: 10 }, (_, index) => ({
-  //             id: index + 1,
-  //             username: faker.internet.userName(),
-  //         }));
-
-  //         try {
-  //             const response = await axios.get(`${API_URL}/dashboard/${username}`);
-  //             const apiUsers = response.data.users;
-
-  //             setUsers([...apiUsers, ...fakeUsers]);
-  //         } catch (err) {
-  //             console.error('Error fetching users from API:', err);
-  //             setUsers(fakeUsers);
-  //         }
-  //     };
-  //     fetchUsers();
-  // }, [username]);
 
     const handleDelete = async (userId: number) => {
         try {
@@ -76,6 +55,7 @@ const Dashboard: React.FC = () => {
                     <h3>Menu</h3>
                     <ul>
                         <li><Link to={`/upload/${username}`} className="side-link">Upload Files</Link></li>
+                        <li><Link to={`/chat/${username}`} className="side-link">Chat</Link></li>
                         <li><Link to="/" className="side-link">Logout</Link></li>
                     </ul>
                 </aside>
